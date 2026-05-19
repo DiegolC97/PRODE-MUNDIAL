@@ -1,0 +1,132 @@
+version: '3.9'
+
+# ──────────────────────────────────────────────────────────────────────────
+# PRODE MUNDIAL — Microservices topology
+#
+#   web                     → Next.js frontend / BFF (port 3000)
+#   matches-service         → REST microservice (port 4001)
+#   predictions-service     → REST microservice (port 4002)
+#   scoring-service         → REST microservice (port 4003)
+#   postgres                → shared relational store
+#   redis                   → cache + pub/sub between services
+# ──────────────────────────────────────────────────────────────────────────
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: prode-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-prode}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-prode_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-prode_mundial}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-prode}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: prode-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  matches-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+      args:
+        SERVICE_NAME: matches-service
+    container_name: prode-matches-service
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: matches-service
+      SERVICE_PORT: 4001
+      DATABASE_URL: postgres://${POSTGRES_USER:-prode}:${POSTGRES_PASSWORD:-prode_secret}@postgres:5432/${POSTGRES_DB:-prode_mundial}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - '4001:4001'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  predictions-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+      args:
+        SERVICE_NAME: predictions-service
+    container_name: prode-predictions-service
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: predictions-service
+      SERVICE_PORT: 4002
+      DATABASE_URL: postgres://${POSTGRES_USER:-prode}:${POSTGRES_PASSWORD:-prode_secret}@postgres:5432/${POSTGRES_DB:-prode_mundial}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - '4002:4002'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  scoring-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+      args:
+        SERVICE_NAME: scoring-service
+    container_name: prode-scoring-service
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: scoring-service
+      SERVICE_PORT: 4003
+      DATABASE_URL: postgres://${POSTGRES_USER:-prode}:${POSTGRES_PASSWORD:-prode_secret}@postgres:5432/${POSTGRES_DB:-prode_mundial}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - '4003:4003'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    container_name: prode-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      MATCHES_SERVICE_URL: http://matches-service:4001
+      PREDICTIONS_SERVICE_URL: http://predictions-service:4002
+      SCORING_SERVICE_URL: http://scoring-service:4003
+      REDIS_URL: redis://redis:6379
+    ports:
+      - '3000:3000'
+    depends_on:
+      - matches-service
+      - predictions-service
+      - scoring-service
+
+volumes:
+  postgres-data:
+  redis-data:

@@ -1,0 +1,21 @@
+# ───────── Generic Dockerfile used by all microservices ─────────
+# The microservice to run is selected by the SERVICE_NAME build arg.
+#
+# Each microservice lives in:
+#   src/interfaces/services/<SERVICE_NAME>/server.ts
+# ────────────────────────────────────────────────────────────────
+
+FROM node:20-alpine
+WORKDIR /app
+
+ARG SERVICE_NAME
+ENV SERVICE_NAME=${SERVICE_NAME}
+
+COPY package.json package-lock.json* ./
+RUN npm ci || npm install
+
+COPY tsconfig.json ./
+COPY src ./src
+
+EXPOSE 4000
+CMD ["sh", "-c", "npx ts-node src/interfaces/services/${SERVICE_NAME}/server.ts"]
