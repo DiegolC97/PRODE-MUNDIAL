@@ -50,3 +50,6 @@ redis-data/
 # logs
 logs/
 *.log
+
+# prisma — generated client lives inside node_modules; keep migrations checked in
+/prisma/migrations/dev.db*
