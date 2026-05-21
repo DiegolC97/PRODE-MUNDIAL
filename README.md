@@ -100,6 +100,62 @@ The thin outermost shell. Translates external input → use case call → respon
 
 ---
 
+## Local setup
+
+> Quickstart for running PRODE MUNDIAL on your machine.
+
+**Prerequisites**: Node.js ≥ 20, Docker (with Compose v2), npm.
+
+1. **Clone & install**
+
+   ```bash
+   git clone <repo-url> prode-mundial && cd prode-mundial
+   npm install
+   ```
+
+2. **Configure environment** — copy the template and fill in real values
+   (at minimum `NEXTAUTH_SECRET` and `API_FOOTBALL_KEY`):
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Required variables (see `.env.example` for the full list):
+
+   | Variable           | Purpose                                       |
+   | ------------------ | --------------------------------------------- |
+   | `DATABASE_URL`     | Postgres connection string                    |
+   | `REDIS_URL`        | Redis connection string                       |
+   | `NEXTAUTH_SECRET`  | NextAuth session signing secret               |
+   | `API_FOOTBALL_KEY` | API key for api-football.com fixture sync     |
+
+3. **Start Postgres + Redis** (data is persisted to named volumes, so a
+   `docker compose down` and back up keeps your dev database intact):
+
+   ```bash
+   docker compose up -d postgres redis
+   ```
+
+   Both services expose healthchecks; check them with `docker compose ps`.
+
+4. **Apply the schema**
+
+   ```bash
+   npm run db:migrate
+   ```
+
+5. **Run the BFF + microservices** (or use `docker compose up --build`
+   to launch the full stack in containers — see "Getting started" below).
+
+   ```bash
+   npm run service:matches
+   npm run service:predictions
+   npm run service:scoring
+   npm run dev
+   ```
+
+---
+
 ## Getting started
 
 ### 1. Configure environment
