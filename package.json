@@ -21,7 +21,8 @@
     "db:seed": "ts-node --compiler-options {\"module\":\"commonjs\"} prisma/seed.ts",
     "service:matches": "ts-node src/interfaces/services/matches-service/server.ts",
     "service:predictions": "ts-node src/interfaces/services/predictions-service/server.ts",
-    "service:scoring": "ts-node src/interfaces/services/scoring-service/server.ts"
+    "service:scoring": "ts-node src/interfaces/services/scoring-service/server.ts",
+    "worker": "ts-node src/shared/queue/worker.ts"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"commonjs\"} prisma/seed.ts"
@@ -32,6 +33,7 @@
     "react-dom": "18.3.1",
     "pg": "8.12.0",
     "ioredis": "5.4.1",
+    "bullmq": "5.12.0",
     "express": "4.19.2",
     "zod": "3.23.8",
     "dotenv": "16.4.5",
