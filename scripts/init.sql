@@ -28,11 +28,24 @@ CREATE INDEX IF NOT EXISTS matches_kickoff_idx ON matches (kickoff_at);
 
 -- ─── Users ──────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users (
-  id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  email      VARCHAR(200) NOT NULL UNIQUE,
-  display_name VARCHAR(80) NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email         VARCHAR(200) NOT NULL UNIQUE,
+  username      VARCHAR(40)  NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  display_name  VARCHAR(80)  NOT NULL,
+  created_at    TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
+
+-- ─── Profiles ───────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS profiles (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id     UUID        NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  name        VARCHAR(80) NOT NULL,
+  country     CHAR(2)     NOT NULL,
+  avatar_url  TEXT,
+  total_score INTEGER     NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS profiles_total_score_idx ON profiles (total_score);
 
 -- ─── Predictions ────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS predictions (

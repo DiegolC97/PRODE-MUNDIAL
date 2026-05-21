@@ -51,14 +51,32 @@ model Match {
 
 // ─── Users ──────────────────────────────────────────────────────
 model User {
-  id          String   @id @default(uuid()) @db.Uuid
-  email       String   @unique @db.VarChar(200)
-  displayName String   @map("display_name") @db.VarChar(80)
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @db.VarChar(200)
+  username     String   @unique @db.VarChar(40)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  displayName  String   @map("display_name") @db.VarChar(80)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   predictions Prediction[]
+  profile     Profile?
 
   @@map("users")
+}
+
+// ─── Profiles ───────────────────────────────────────────────────
+model Profile {
+  id          String  @id @default(uuid()) @db.Uuid
+  userId      String  @unique @map("user_id") @db.Uuid
+  name        String  @db.VarChar(80)
+  country     String  @db.Char(2)
+  avatarUrl   String? @map("avatar_url") @db.Text
+  totalScore  Int     @default(0) @map("total_score")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([totalScore], map: "profiles_total_score_idx")
+  @@map("profiles")
 }
 
 // ─── Predictions ────────────────────────────────────────────────
