@@ -24,6 +24,8 @@ const nextConfig = {
     config.resolve.alias['@application'] = path.resolve(__dirname, 'src/application');
     config.resolve.alias['@infrastructure'] = path.resolve(__dirname, 'src/infrastructure');
     config.resolve.alias['@interfaces'] = path.resolve(__dirname, 'src/interfaces');
+    config.resolve.alias['@/modules'] = path.resolve(__dirname, 'src/modules');
+    config.resolve.alias['@/shared'] = path.resolve(__dirname, 'src/shared');
     return config;
   },
 };

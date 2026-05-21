@@ -3,10 +3,7 @@ import { Score } from '../../domain/value-objects/Score';
 import { MatchRepository } from '../../domain/repositories/MatchRepository';
 import { PredictionRepository } from '../../domain/repositories/PredictionRepository';
 import { UserRepository } from '../../domain/repositories/UserRepository';
-import {
-  BusinessRuleViolationError,
-  EntityNotFoundError,
-} from '../../domain/errors/DomainErrors';
+import { BusinessRuleViolationError, EntityNotFoundError } from '../../domain/errors/DomainErrors';
 import { Clock } from '../ports/Clock';
 import { IdGenerator } from '../ports/IdGenerator';
 import { PredictionDTO, SubmitPredictionDTO } from '../dtos/PredictionDTO';
@@ -39,9 +36,7 @@ export class SubmitPrediction {
 
     const now = this.clock.now();
     if (!match.acceptsPredictions(now)) {
-      throw new BusinessRuleViolationError(
-        'Predictions are locked: match has already kicked off',
-      );
+      throw new BusinessRuleViolationError('Predictions are locked: match has already kicked off');
     }
 
     const existing = await this.predictions.findByUserAndMatch(dto.userId, dto.matchId);

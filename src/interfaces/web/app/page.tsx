@@ -5,8 +5,8 @@ export default function HomePage() {
     <section>
       <h2>Welcome to the prediction pool</h2>
       <p>
-        Place your bets on every World Cup match. Earn points for correct outcomes,
-        bonus points for the exact score.
+        Place your bets on every World Cup match. Earn points for correct outcomes, bonus points for
+        the exact score.
       </p>
       <ul>
         <li>
@@ -19,9 +19,9 @@ export default function HomePage() {
       <hr style={{ borderColor: 'rgba(255,255,255,0.1)', margin: '2rem 0' }} />
       <h3>Architecture</h3>
       <p>
-        This frontend is the BFF (Backend-For-Frontend) of three independent
-        microservices: <code>matches-service</code>, <code>predictions-service</code>,{' '}
-        <code>scoring-service</code>. See <code>README.md</code>.
+        This frontend is the BFF (Backend-For-Frontend) of three independent microservices:{' '}
+        <code>matches-service</code>, <code>predictions-service</code>, <code>scoring-service</code>
+        . See <code>README.md</code>.
       </p>
     </section>
   );

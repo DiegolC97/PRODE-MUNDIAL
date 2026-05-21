@@ -35,8 +35,7 @@ export class ScoringPolicy {
     if (predicted.outcome() === actual.outcome()) {
       const predictedDiff = predicted.home - predicted.away;
       const actualDiff = actual.home - actual.away;
-      const bonus =
-        predictedDiff === actualDiff ? this.rules.correctGoalDifferenceBonus : 0;
+      const bonus = predictedDiff === actualDiff ? this.rules.correctGoalDifferenceBonus : 0;
       return this.rules.correctOutcomePoints + bonus;
     }
 

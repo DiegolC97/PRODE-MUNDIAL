@@ -6,17 +6,17 @@ a configurable scoring policy.
 
 ## Tech stack
 
-| Concern         | Choice                                  |
-| --------------- | --------------------------------------- |
-| Frontend / BFF  | **Next.js 14** (App Router) + React 18  |
-| Language        | **TypeScript** (strict)                 |
-| Microservices   | Node.js + **Express** (3 services)      |
-| Database        | **PostgreSQL 16**                       |
-| Cache / pubsub  | **Redis 7** (via `ioredis`)             |
-| Orchestration   | **Docker Compose**                      |
-| Validation      | Zod                                     |
-| Tests           | Jest + ts-jest                          |
-| Lint / format   | ESLint + Prettier                       |
+| Concern        | Choice                                 |
+| -------------- | -------------------------------------- |
+| Frontend / BFF | **Next.js 14** (App Router) + React 18 |
+| Language       | **TypeScript** (strict)                |
+| Microservices  | Node.js + **Express** (3 services)     |
+| Database       | **PostgreSQL 16**                      |
+| Cache / pubsub | **Redis 7** (via `ioredis`)            |
+| Orchestration  | **Docker Compose**                     |
+| Validation     | Zod                                    |
+| Tests          | Jest + ts-jest                         |
+| Lint / format  | ESLint + Prettier                      |
 
 ## Topology
 
@@ -58,7 +58,9 @@ infrastructure → application → domain
 ```
 
 ### `src/domain/`
+
 The heart of the system. Pure TypeScript, zero third-party imports.
+
 - **entities/** — `Match`, `Prediction`, `Team`, `User` (with invariants enforced in their constructors)
 - **value-objects/** — `Score`, `MatchStatus`
 - **services/** — `ScoringPolicy` (pure scoring logic, configurable)
@@ -66,14 +68,18 @@ The heart of the system. Pure TypeScript, zero third-party imports.
 - **errors/** — domain-level exceptions (`EntityNotFoundError`, `BusinessRuleViolationError`)
 
 ### `src/application/`
+
 Orchestrates the domain to fulfill use cases. Imports only from `domain/`.
+
 - **use-cases/** — `SubmitPrediction`, `ListUpcomingMatches`, `ScoreMatchPredictions` (each is one class with an `execute(dto)` method)
 - **dtos/** — input/output contracts for use cases
 - **ports/** — abstractions the application needs from the outside world (`Clock`, `IdGenerator`, `CacheStore`)
 - **mappers/** — domain ↔ DTO translation
 
 ### `src/infrastructure/`
+
 All I/O lives here. Implements the interfaces defined upstream.
+
 - **db/** — Postgres connection pool
 - **repositories/** — `PgMatchRepository`, `PgPredictionRepository`, `PgUserRepository` (implement domain interfaces)
 - **cache/** — `RedisCacheStore` (implements `CacheStore` port)
@@ -83,7 +89,9 @@ All I/O lives here. Implements the interfaces defined upstream.
 - **composition-root.ts** — wires everything into ready-to-use use case instances
 
 ### `src/interfaces/`
+
 The thin outermost shell. Translates external input → use case call → response.
+
 - **web/app/** — Next.js App Router (pages, API routes); also re-exported from `src/app/` so Next.js discovers them
 - **services/matches-service/** — Express microservice for match listings
 - **services/predictions-service/** — Express microservice for accepting predictions
@@ -167,17 +175,17 @@ curl -X POST http://localhost:4003/matches/<matchId>/score \
 
 ## Scripts
 
-| Command                 | Purpose                                     |
-| ----------------------- | ------------------------------------------- |
-| `npm run dev`           | Next.js dev server                          |
-| `npm run build`         | Production build                            |
-| `npm run start`         | Run the production build                    |
-| `npm run lint`          | ESLint (enforces layer-boundary rules)      |
-| `npm run format`        | Prettier write                              |
-| `npm run type-check`    | `tsc --noEmit`                              |
-| `npm test`              | Jest                                        |
-| `npm run db:migrate`    | Apply `scripts/init.sql` to `DATABASE_URL`  |
-| `npm run service:*`     | Run an individual microservice with ts-node |
+| Command              | Purpose                                     |
+| -------------------- | ------------------------------------------- |
+| `npm run dev`        | Next.js dev server                          |
+| `npm run build`      | Production build                            |
+| `npm run start`      | Run the production build                    |
+| `npm run lint`       | ESLint (enforces layer-boundary rules)      |
+| `npm run format`     | Prettier write                              |
+| `npm run type-check` | `tsc --noEmit`                              |
+| `npm test`           | Jest                                        |
+| `npm run db:migrate` | Apply `scripts/init.sql` to `DATABASE_URL`  |
+| `npm run service:*`  | Run an individual microservice with ts-node |
 
 ---
 

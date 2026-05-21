@@ -5,10 +5,7 @@
     "ecmaVersion": 2022,
     "sourceType": "module"
   },
-  "extends": [
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended"
-  ],
+  "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/recommended"],
   "plugins": ["@typescript-eslint"],
   "rules": {
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
@@ -59,6 +56,58 @@
               {
                 "group": ["@interfaces/*"],
                 "message": "infrastructure layer cannot import from interfaces."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/modules/*/domain/**/*.ts", "src/modules/*/domain/**/*.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/modules/*/application/*",
+                  "@/modules/*/infrastructure/*",
+                  "@/modules/*/presentation/*"
+                ],
+                "message": "module domain layer cannot import from application, infrastructure, or presentation."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/modules/*/application/**/*.ts", "src/modules/*/application/**/*.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/modules/*/infrastructure/*", "@/modules/*/presentation/*"],
+                "message": "module application layer cannot import from infrastructure or presentation."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/modules/*/infrastructure/**/*.ts", "src/modules/*/infrastructure/**/*.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/modules/*/presentation/*"],
+                "message": "module infrastructure layer cannot import from presentation."
               }
             ]
           }

@@ -20,7 +20,9 @@ export default async function MatchesPage() {
         <p style={{ color: '#ff8080' }}>
           Could not load matches: {error}
           <br />
-          <small>(Did you run <code>docker compose up</code> and the migrations?)</small>
+          <small>
+            (Did you run <code>docker compose up</code> and the migrations?)
+          </small>
         </p>
       )}
       {!error && matches.length === 0 && <p>No upcoming matches scheduled.</p>}
