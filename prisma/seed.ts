@@ -10,13 +10,16 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const TEAMS: Array<{ name: string; countryCode: string }> = [
-  { name: 'Argentina', countryCode: 'ARG' },
-  { name: 'Brazil', countryCode: 'BRA' },
-  { name: 'France', countryCode: 'FRA' },
-  { name: 'Germany', countryCode: 'GER' },
-  { name: 'Spain', countryCode: 'ESP' },
-  { name: 'England', countryCode: 'ENG' },
+// Placeholder API-Football IDs for dev seed data.
+// Real IDs will be populated via the results-ingestion module when connected
+// to the live API-Football feed.
+const TEAMS: Array<{ apiFootballId: number; name: string; countryCode: string }> = [
+  { apiFootballId: 1, name: 'Argentina', countryCode: 'ARG' },
+  { apiFootballId: 2, name: 'Brazil', countryCode: 'BRA' },
+  { apiFootballId: 3, name: 'France', countryCode: 'FRA' },
+  { apiFootballId: 4, name: 'Germany', countryCode: 'GER' },
+  { apiFootballId: 5, name: 'Spain', countryCode: 'ESP' },
+  { apiFootballId: 6, name: 'England', countryCode: 'ENG' },
 ];
 
 async function main(): Promise<void> {
@@ -24,7 +27,7 @@ async function main(): Promise<void> {
   for (const team of TEAMS) {
     await prisma.team.upsert({
       where: { name: team.name },
-      update: { countryCode: team.countryCode },
+      update: { countryCode: team.countryCode, apiFootballId: team.apiFootballId },
       create: team,
     });
   }
