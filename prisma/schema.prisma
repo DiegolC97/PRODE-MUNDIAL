@@ -1,7 +1,6 @@
 // PRODE MUNDIAL — Prisma schema
 //
-// Mirrors scripts/init.sql so `prisma migrate dev` produces the same physical
-// schema. Tables/columns use snake_case (matching SQL) via @map/@@map so that
+// Tables/columns use snake_case (matching SQL) via @map/@@map so that
 // the generated TS client uses idiomatic camelCase.
 //
 // Docs: https://pris.ly/d/prisma-schema
@@ -16,36 +15,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── Enums ──────────────────────────────────────────────────────
+
+enum Stage {
+  GROUP
+  R32
+  R16
+  QF
+  SF
+  THIRD
+  FINAL
+
+  @@map("stage_enum")
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  FINISHED
+  CANCELLED
+
+  @@map("match_status_enum")
+}
+
 // ─── Teams ──────────────────────────────────────────────────────
 model Team {
-  id          String   @id @default(uuid()) @db.Uuid
-  name        String   @unique @db.VarChar(100)
-  countryCode String   @map("country_code") @db.Char(3)
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id              String   @id @default(uuid()) @db.Uuid
+  apiFootballId   Int      @unique @map("api_football_id")
+  name            String   @unique @db.VarChar(100)
+  countryCode     String   @map("country_code") @db.Char(3)
+  flagUrl         String?  @map("flag_url") @db.Text
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   homeMatches Match[] @relation("HomeTeam")
   awayMatches Match[] @relation("AwayTeam")
+  wonMatches  Match[] @relation("WinnerTeam")
 
   @@map("teams")
 }
 
 // ─── Matches ────────────────────────────────────────────────────
 model Match {
-  id         String   @id @default(uuid()) @db.Uuid
-  homeTeamId String   @map("home_team_id") @db.Uuid
-  awayTeamId String   @map("away_team_id") @db.Uuid
-  kickoffAt  DateTime @map("kickoff_at") @db.Timestamptz(6)
-  stage      String   @db.VarChar(40)
-  homeScore  Int?     @map("home_score")
-  awayScore  Int?     @map("away_score")
-  status     String   @default("SCHEDULED") @db.VarChar(20)
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id              String      @id @default(uuid()) @db.Uuid
+  apiFootballId   Int         @unique @map("api_football_id")
+  homeTeamId      String      @map("home_team_id") @db.Uuid
+  awayTeamId      String      @map("away_team_id") @db.Uuid
+  kickoffAt       DateTime    @map("kickoff_at") @db.Timestamptz(6)
+  stage           Stage
+  homeScore       Int?        @map("home_score")
+  awayScore       Int?        @map("away_score")
+  status          MatchStatus @default(SCHEDULED)
+  winnerTeamId    String?     @map("winner_team_id") @db.Uuid
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
 
   homeTeam    Team         @relation("HomeTeam", fields: [homeTeamId], references: [id])
   awayTeam    Team         @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  winnerTeam  Team?        @relation("WinnerTeam", fields: [winnerTeamId], references: [id])
   predictions Prediction[]
 
   @@index([kickoffAt], map: "matches_kickoff_idx")
+  @@index([status], map: "matches_status_idx")
   @@map("matches")
 }
 
@@ -66,12 +95,12 @@ model User {
 
 // ─── Profiles ───────────────────────────────────────────────────
 model Profile {
-  id          String  @id @default(uuid()) @db.Uuid
-  userId      String  @unique @map("user_id") @db.Uuid
-  name        String  @db.VarChar(80)
-  country     String  @db.Char(2)
-  avatarUrl   String? @map("avatar_url") @db.Text
-  totalScore  Int     @default(0) @map("total_score")
+  id         String  @id @default(uuid()) @db.Uuid
+  userId     String  @unique @map("user_id") @db.Uuid
+  name       String  @db.VarChar(80)
+  country    String  @db.Char(2)
+  avatarUrl  String? @map("avatar_url") @db.Text
+  totalScore Int     @default(0) @map("total_score")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
